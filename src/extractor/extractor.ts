@@ -109,7 +109,7 @@ export class Extractor {
 
       units.push({
         arguments: params,
-        source: id,
+        source: this.options.lower ? id.toLowerCase() : id,
         context: {
           sourceFile: node.getSourceFile().fileName,
           lineNumber: ts
