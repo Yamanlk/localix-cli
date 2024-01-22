@@ -31,7 +31,8 @@
   "devDependencies": {
     "@types/figlet": "^1.5.8",
     "@types/node": "^20.11.5",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
   },
   "dependencies": {
     "chalk": "^4.1.2",
