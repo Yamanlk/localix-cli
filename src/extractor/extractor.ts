@@ -83,7 +83,7 @@ export class Extractor {
   visitTemplateLiteral(node: ts.TemplateLiteral, units: TranslationUnit[]) {
     if (node.kind === ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
       units.push({
-        source: node.text,
+        source: this.options.lower ? node.text.toLowerCase() : node.text,
         arguments: {},
         context: {
           sourceFile: node.getSourceFile().fileName,
