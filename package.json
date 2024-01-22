@@ -30,7 +30,8 @@
   "homepage": "https://github.com/Yamanlk/localix-cli",
   "devDependencies": {
     "@types/figlet": "^1.5.8",
-    "@types/node": "^20.11.5"
+    "@types/node": "^20.11.5",
+    "rimraf": "^5.0.5"
   },
   "dependencies": {
     "chalk": "^4.1.2",
