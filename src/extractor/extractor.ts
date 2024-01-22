@@ -14,102 +14,112 @@ export interface TranslationUnit {
   };
 }
 
-export function extract(): TranslationUnit[] {
-  const configFilePath = ts.sys.resolvePath("./tsconfig.json");
-  const configFileText = ts.sys.readFile(configFilePath) ?? "";
+export class Extractor {
+  constructor(public options: { lower?: boolean }) {}
 
-  const configFileJson = ts.parseConfigFileTextToJson(
-    configFilePath,
-    configFileText
-  );
+  extract(): TranslationUnit[] {
+    const configFilePath = ts.sys.resolvePath("./tsconfig.json");
+    const configFileText = ts.sys.readFile(configFilePath) ?? "";
 
-  if (configFileJson.error) {
-    console.error(
-      "Error parsing tsconfig.json:",
-      configFileJson.error.messageText
+    const configFileJson = ts.parseConfigFileTextToJson(
+      configFilePath,
+      configFileText
     );
-    process.exit(1);
-  }
 
-  const configFile = ts.parseJsonConfigFileContent(
-    configFileJson.config,
-    ts.sys,
-    ""
-  );
+    if (configFileJson.error) {
+      console.error(
+        "Error parsing tsconfig.json:",
+        configFileJson.error.messageText
+      );
+      process.exit(1);
+    }
 
-  const program = ts.createProgram(configFile.fileNames, configFile.options);
+    const configFile = ts.parseJsonConfigFileContent(
+      configFileJson.config,
+      ts.sys,
+      ""
+    );
 
-  const sourceFiles = program.getSourceFiles();
+    const program = ts.createProgram(configFile.fileNames, configFile.options);
 
-  const units: TranslationUnit[] = [];
+    const sourceFiles = program.getSourceFiles();
 
-  sourceFiles
-    .map((sourceFile) =>
-      ts.createSourceFile(
-        sourceFile.fileName,
-        sourceFile.text,
-        configFile.options.target ?? ts.ScriptTarget.ES2015,
-        true,
-        ts.ScriptKind.TS
+    const units: TranslationUnit[] = [];
+
+    sourceFiles
+      .map((sourceFile) =>
+        ts.createSourceFile(
+          sourceFile.fileName,
+          sourceFile.text,
+          configFile.options.target ?? ts.ScriptTarget.ES2015,
+          true,
+          ts.ScriptKind.TS
+        )
       )
-    )
-    .forEach((node) => visit(node, units));
+      .forEach((node) => this.visit(node, units));
 
-  return units;
-}
-
-function visit(node: ts.Node, units: TranslationUnit[]) {
-  if (node.kind === ts.SyntaxKind.TaggedTemplateExpression) {
-    visitTaggedTemplateExpression(node as ts.TaggedTemplateExpression, units);
+    return units;
   }
-  ts.forEachChild(node, (_node) => visit(_node, units));
-}
 
-function visitTaggedTemplateExpression(
-  node: ts.TaggedTemplateExpression,
-  units: TranslationUnit[]
-) {
-  if (node.tag.getText() === "localize") {
-    visitTemplateLiteral(node.template, units);
+  visit(node: ts.Node, units: TranslationUnit[]) {
+    if (node.kind === ts.SyntaxKind.TaggedTemplateExpression) {
+      this.visitTaggedTemplateExpression(
+        node as ts.TaggedTemplateExpression,
+        units
+      );
+    }
+    ts.forEachChild(node, (_node) => this.visit(_node, units));
   }
-}
 
-function visitTemplateLiteral(
-  node: ts.TemplateLiteral,
-  units: TranslationUnit[]
-) {
-  if (node.kind === ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
-    units.push({
-      source: node.text,
-      arguments: {},
-      context: {
-        sourceFile: node.getSourceFile().fileName,
-        lineNumber: ts
-          .getLineAndCharacterOfPosition(node.getSourceFile(), node.getStart())
-          .line.toString(),
-      },
-    });
-  } else {
-    let id = "";
-    let params: Record<string, string> = {};
-    id += node.head.text;
+  visitTaggedTemplateExpression(
+    node: ts.TaggedTemplateExpression,
+    units: TranslationUnit[]
+  ) {
+    if (node.tag.getText() === "localize") {
+      this.visitTemplateLiteral(node.template, units);
+    }
+  }
 
-    node.templateSpans.forEach((templateSpan, index) => {
-      const param = `$${index + 1}`;
-      params[param] = templateSpan.expression.getText();
-      id += param;
-      id += templateSpan.literal.text;
-    });
+  visitTemplateLiteral(node: ts.TemplateLiteral, units: TranslationUnit[]) {
+    if (node.kind === ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
+      units.push({
+        source: node.text,
+        arguments: {},
+        context: {
+          sourceFile: node.getSourceFile().fileName,
+          lineNumber: ts
+            .getLineAndCharacterOfPosition(
+              node.getSourceFile(),
+              node.getStart()
+            )
+            .line.toString(),
+        },
+      });
+    } else {
+      let id = "";
+      let params: Record<string, string> = {};
+      id += node.head.text;
 
-    units.push({
-      arguments: params,
-      source: id,
-      context: {
-        sourceFile: node.getSourceFile().fileName,
-        lineNumber: ts
-          .getLineAndCharacterOfPosition(node.getSourceFile(), node.getStart())
-          .line.toString(),
-      },
-    });
+      node.templateSpans.forEach((templateSpan, index) => {
+        const param = `$${index + 1}`;
+        params[param] = templateSpan.expression.getText();
+        id += param;
+        id += templateSpan.literal.text;
+      });
+
+      units.push({
+        arguments: params,
+        source: id,
+        context: {
+          sourceFile: node.getSourceFile().fileName,
+          lineNumber: ts
+            .getLineAndCharacterOfPosition(
+              node.getSourceFile(),
+              node.getStart()
+            )
+            .line.toString(),
+        },
+      });
+    }
   }
 }

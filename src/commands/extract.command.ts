@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { TranslationUnit, extract } from "../extractor/extractor";
+import { Extractor, TranslationUnit } from "../extractor/extractor";
 import { Formatter } from "../formatter/index.formatter";
 import { JsonFormatter } from "../formatter/json.formatter";
 import { Merger } from "../merger/merger";
@@ -9,6 +9,7 @@ interface ExtractCommandOptions {
   format: "json";
   output: string;
   locales: string;
+  lower: boolean;
 }
 
 export function addExtractCommand(program: Command) {
@@ -22,13 +23,16 @@ export function addExtractCommand(program: Command) {
     )
     .requiredOption("-o --output <path>", "output file path")
     .requiredOption("--locales <string,string,...>", "output locales")
+    .option("--lower", "transforms id's into lower case", false)
     .action((args) => runExtract(args));
 }
 
 function runExtract(options: ExtractCommandOptions) {
-  const { format, output, locales } = options;
+  const { format, output, locales, lower } = options;
 
-  const units = extract();
+  const extractor = new Extractor({ lower });
+
+  const units = extractor.extract();
 
   const formatter = getFormatter(format, { locales });
 
