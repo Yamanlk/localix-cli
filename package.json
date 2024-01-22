@@ -1,0 +1,37 @@
+{
+  "name": "@localix/cli",
+  "version": "1.0.0",
+  "description": "\"@localix/cli\" is an npm package that CLI for working with localization files in ts.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "localix-cli": "dist/index.js"
+  },
+  "author": "Yaman Lakis",
+  "license": "ISC",
+  "keywords": [
+    "localization",
+    "i18n",
+    "cli"
+  ],
+  "bugs": {
+    "email": "yamanlakis@gmail.com",
+    "url": "https://github.com/Yamanlk/localix-cli/issues"
+  },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/Yamanlk/localix-cli",
+  "devDependencies": {
+    "@types/figlet": "^1.5.8",
+    "@types/node": "^20.11.5"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.1.0",
+    "figlet": "^1.7.0"
+  }
+}
