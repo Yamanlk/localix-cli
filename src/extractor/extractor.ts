@@ -15,7 +15,22 @@ export interface TranslationUnit {
 }
 
 export class Extractor {
-  constructor(public options: { lower?: boolean }) {}
+  casing: (id: string) => string;
+
+  constructor(public options: { casing?: "lower" | "upper" | "none" }) {
+    switch (options.casing) {
+      case "lower":
+        this.casing = (id) => id.toLowerCase();
+        break;
+      case "upper":
+        this.casing = (id) => id.toUpperCase();
+        break;
+      case "none":
+      default:
+        this.casing = (id) => id;
+        break;
+    }
+  }
 
   extract(): TranslationUnit[] {
     const configFilePath = ts.sys.resolvePath("./tsconfig.json");
@@ -83,7 +98,7 @@ export class Extractor {
   visitTemplateLiteral(node: ts.TemplateLiteral, units: TranslationUnit[]) {
     if (node.kind === ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
       units.push({
-        source: this.options.lower ? node.text.toLowerCase() : node.text,
+        source: this.casing(node.text),
         arguments: {},
         context: {
           sourceFile: node.getSourceFile().fileName,
@@ -109,7 +124,7 @@ export class Extractor {
 
       units.push({
         arguments: params,
-        source: this.options.lower ? id.toLowerCase() : id,
+        source: this.casing(id),
         context: {
           sourceFile: node.getSourceFile().fileName,
           lineNumber: ts

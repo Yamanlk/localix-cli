@@ -3,34 +3,30 @@ import { existsSync, readFileSync, writeFileSync } from "fs";
 import { Extractor, TranslationUnit } from "../extractor/extractor";
 import { Formatter } from "../formatter/index.formatter";
 import { JsonFormatter } from "../formatter/json.formatter";
+import { readLocalixrc } from "../localixrc/localixrc";
 import { Merger } from "../merger/merger";
 
-interface ExtractCommandOptions {
-  format: "json";
+export interface ExtractCommandOptions {
+  format?: "json";
   output: string;
-  locales: string;
-  lower: boolean;
+  locales: string[];
+  casing?: "lower" | "upper" | "none";
 }
 
 export function addExtractCommand(program: Command) {
-  program
-    .command("extract")
-    .description("extracts translation units to preferred output format")
-    .option(
-      "-f --format <json|xlif>",
-      "select extrated files output format",
-      "json"
-    )
-    .requiredOption("-o --output <path>", "output file path")
-    .requiredOption("--locales <string,string,...>", "output locales")
-    .option("--lower", "transforms id's into lower case", false)
-    .action((args) => runExtract(args));
+  program.command("extract").action((args) => runExtract());
 }
 
-function runExtract(options: ExtractCommandOptions) {
-  const { format, output, locales, lower } = options;
+function runExtract() {
+  const options = readLocalixrc();
 
-  const extractor = new Extractor({ lower });
+  if (!options) {
+    throw new Error(".localizerc file was not found");
+  }
+
+  const { format, output, locales, casing } = options;
+
+  const extractor = new Extractor({ casing });
 
   const units = extractor.extract();
 
@@ -59,7 +55,7 @@ function getFormatter(
       return new JsonFormatter({
         decodeOptions: {},
         encodeOptions: {
-          locales: options.locales.split(","),
+          locales: options.locales,
         },
       });
   }
