@@ -1,0 +1,57 @@
+{
+    "$schema": "http://192.168.11.123:8080/localixrc.schema.json",
+    "$id": "https://localix.github.io/localixrc.schema.json",
+    "title": "localixrc",
+    "description": "JSON schema for .localixrc file",
+    "type": "object",
+    "required": [
+        "output",
+        "locales"
+    ],
+    "properties": {
+        "format": {
+            "type": "string",
+            "description": "select extrated files output format",
+            "default": "json",
+            "enum": [
+                "json"
+            ]
+        },
+        "output": {
+            "type": "string",
+            "description": "output file path",
+            "examples": [
+                "i18n/translation.json"
+            ]
+        },
+        "locales": {
+            "type": "array",
+            "description": "output locales",
+            "items": {
+                "type": "string"
+            },
+            "examples": [
+                [
+                    "en"
+                ]
+            ]
+        },
+        "casing": {
+            "type": "string",
+            "description": "transforms id's into lower case",
+            "enum": [
+                "lower",
+                "upper",
+                "none"
+            ],
+            "default": "none"
+        },
+        "defaultLocale": {
+            "type": "string",
+            "description": "default locale when translations not found",
+            "examples": [
+                "en"
+            ]
+        }
+    }
+}
