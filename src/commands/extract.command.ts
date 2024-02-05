@@ -30,6 +30,8 @@ function runExtract() {
 
   const units = extractor.extract();
 
+  console.log(units);
+
   const formatter = getFormatter(format, { locales });
 
   const sourceUnits: TranslationUnit[] = existsSync(output)

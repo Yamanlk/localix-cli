@@ -1,3 +1,4 @@
+import { ExtractCommandOptions } from "../commands/extract.command";
 import { TranslationUnit } from "../extractor/extractor";
 import { Formatter } from "./index.formatter";
 
@@ -38,5 +39,21 @@ export class JsonFormatter implements Formatter {
     });
 
     return JSON.stringify(json, null, 2);
+  }
+}
+
+export function getFormatter(
+  format: ExtractCommandOptions["format"],
+  options: Pick<ExtractCommandOptions, "locales">
+): Formatter {
+  switch (format) {
+    case "json":
+    default:
+      return new JsonFormatter({
+        decodeOptions: {},
+        encodeOptions: {
+          locales: options.locales,
+        },
+      });
   }
 }
