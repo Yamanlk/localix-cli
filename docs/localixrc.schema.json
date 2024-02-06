@@ -1,5 +1,4 @@
 {
-    "$schema": "http://192.168.11.123:8080/localixrc.schema.json",
     "$id": "https://localix.github.io/localixrc.schema.json",
     "title": "localixrc",
     "description": "JSON schema for .localixrc file",
@@ -9,6 +8,70 @@
         "locales"
     ],
     "properties": {
+        "jsonFormatter": {
+            "type": "object",
+            "description": "json formatter options",
+            "required": [
+                "encodeOptions",
+                "decodeOptions"
+            ],
+            "properties": {
+                "encodeOptions": {
+                    "type": "object",
+                    "description": "encode options",
+                    "properties": {
+                        "locales": {
+                            "type": "array",
+                            "description": "output locales",
+                            "items": {
+                                "type": "string"
+                            },
+                            "examples": [
+                                [
+                                    "en"
+                                ]
+                            ]
+                        },
+                        "schema": {
+                            "type": "string",
+                            "description": "json file schema",
+                            "default": "multi",
+                            "enum": [
+                                "single",
+                                "multi"
+                            ]
+                        }
+                    }
+                },
+                "decodeOptions": {
+                    "type": "object",
+                    "description": "decode options",
+                    "properties": {
+                        "locales": {
+                            "type": "array",
+                            "description": "output locales",
+                            "items": {
+                                "type": "string"
+                            },
+                            "examples": [
+                                [
+                                    "en"
+                                ]
+                            ]
+                        },
+                        "schema": {
+                            "type": "string",
+                            "description": "json file schema",
+                            "default": "multi",
+                            "enum": [
+                                "single",
+                                "multi"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "format": {
             "type": "string",
             "description": "select extrated files output format",

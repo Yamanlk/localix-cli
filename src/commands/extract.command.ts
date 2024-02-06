@@ -1,7 +1,6 @@
 import { Command } from "commander";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { Extractor, TranslationUnit } from "../extractor/extractor";
-import { Formatter } from "../formatter/index.formatter";
 import { JsonFormatter } from "../formatter/json.formatter";
 import { readLocalixrc } from "../localixrc/localixrc";
 import { Merger } from "../merger/merger";
@@ -24,15 +23,13 @@ function runExtract() {
     throw new Error(".localizerc file was not found");
   }
 
-  const { format, output, locales, casing } = options;
+  const { output, casing, jsonFormatter } = options;
 
   const extractor = new Extractor({ casing });
 
   const units = extractor.extract();
 
-  console.log(units);
-
-  const formatter = getFormatter(format, { locales });
+  const formatter = new JsonFormatter(jsonFormatter);
 
   const sourceUnits: TranslationUnit[] = existsSync(output)
     ? formatter.decoce(readFileSync(output, { encoding: "utf-8" }))
@@ -45,20 +42,4 @@ function runExtract() {
   const formatted = formatter.encode(mergedUnits);
 
   writeFileSync(output, formatted, { encoding: "utf-8" });
-}
-
-function getFormatter(
-  format: ExtractCommandOptions["format"],
-  options: Pick<ExtractCommandOptions, "locales">
-): Formatter {
-  switch (format) {
-    case "json":
-    default:
-      return new JsonFormatter({
-        decodeOptions: {},
-        encodeOptions: {
-          locales: options.locales,
-        },
-      });
-  }
 }

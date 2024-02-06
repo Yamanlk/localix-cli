@@ -20,14 +20,14 @@ export class GoogleTranslator implements Translator {
 
   async translate(
     sentences: TranslationUnit[],
-    from: string = "en",
+    from: string,
     to: string
   ): Promise<TranslationUnit[]> {
     let translationResults: TranslationUnit[] = [];
     translationResults = await Promise.all(
       sentences.map(async (obj) => {
         const target = obj.target;
-        const sentence = target?.[to] ?? "";
+        const sentence = target?.[from] ?? obj.source;
         const [translation] = await this.translator.translate(sentence, to);
         if (obj && obj.target) {
           obj.target[to] = translation;
